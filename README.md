@@ -7,12 +7,10 @@ O objetivo principal foi transformar um fluxo de registro de furto complexo em u
 
 ## 📈 Evolução do Design: Antes vs. Depois
 
-| Versão Inicial (MVP) | 
-| :--- | :--- |
-| ![Protótipo Inicial]<img width="1327" height="579" alt="APP Alerta Bike" src="https://github.com/user-attachments/assets/34309131-a183-40cf-afb1-0eada57ed479" />
-Versão Refinada (Pós-Testes) |
-| ![Versão Final]<img width="2742" height="1568" alt="Alerta BIKE -atualizado" src="https://github.com/user-attachments/assets/4a504eec-e401-48a7-b2cf-ac229b840814" />
- |
+| Versão Inicial (MVP) | Versão Refinada (Pós-Testes) |
+| :---: | :---: |
+| <img width="400" alt="APP Alerta Bike" src="https://github.com/user-attachments/assets/34309131-a183-40cf-afb1-0eada57ed479" /> | <img width="400" alt="Alerta BIKE -atualizado" src="https://github.com/user-attachments/assets/4a504eec-e401-48a7-b2cf-ac229b840814" /> |
+
 ### Principais Melhorias Implementadas:
 
 * **Priorização do Fluxo de Emergência:** O botão de registro foi redesenhado com alta visibilidade (vermelho vibrante) para reduzir o tempo de reação da vítima.
@@ -20,9 +18,10 @@ Versão Refinada (Pós-Testes) |
 * **Acessibilidade e Legibilidade:** Substituição de listas simples por **Cards de Status** de alto contraste, facilitando a leitura sob luz solar intensa.
 * **Refinamento de Identificação:** Fragmentação do campo de SMS em inputs individuais para uma validação mais fluida e segura.
 
-## 🛠️ Tecnologias Planejadas
+## 🛠️ Tecnologias Implementadas
 * **Interface:** HTML5, CSS3 e JavaScript.
-* **Banco de Dados:** Gestão de ocorrências via SQL (MySQL/SQLite).
+* **Estilização:** CSS Custom Properties (Variáveis), Flexbox e Grid.
+* **UX/UI:** Foco em acessibilidade, alto contraste e feedback visual.
 * **Versionamento:** Git para controle de iterações.
 
 ---
