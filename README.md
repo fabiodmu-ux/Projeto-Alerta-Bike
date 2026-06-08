@@ -56,7 +56,7 @@ Transformar um fluxo de registro de furto complexo em uma **experiência intuiti
 
 | Versão Inicial (MVP) | Versão Refinada (Pós-Testes) |
 | :---: | :---: |
-| <img width="400" alt="APP Alerta Bike" src="https://github.com/user-attachments/assets/34309131-a183-40cf-afb1-0eada57ed479" /> | <img width="400" alt="Alerta BIKE -atualizado" src="https://github.com/user-attachments/assets/..." /> |
+| <img width="400" alt="APP Alerta Bike" src="https://github.com/user-attachments/assets/34309131-a183-40cf-afb1-0eada57ed479" /> | <img width="400" alt="Alerta BIKE -atualizado" src="https://github.com/user-attachments/assets/9df8a7ba-b8b2-48f4-8b80-a1d8b60f3f9c" /> |
 
 ### Principais Melhorias Implementadas:
 
@@ -129,6 +129,7 @@ Projeto-Alerta-Bike/
 ├── 📄 API.md                         # Especificação de API
 ├── 📄 SETUP.md                       # Guia de instalação
 ├── 📄 CONTRIBUTING.md                # Guia de contribuição
+├── 📄 USER_GUIDE.md                  # Manual do usuário
 │
 ├── 📁 frontend/                      # Camada de Apresentação
 │   ├── 📁 public/
@@ -177,7 +178,6 @@ Projeto-Alerta-Bike/
 │   └── 📄 package.json
 │
 ├── 📁 docs/                          # Documentação
-│   ├── 📄 USER_GUIDE.md
 │   ├── 📄 DEPLOYMENT.md
 │   └── 📁 images/
 │
@@ -243,8 +243,8 @@ Acesse: `http://localhost:3000`
 - **[🔌 API.md](./API.md)** - Endpoints e especificações
 - **[⚙️ SETUP.md](./SETUP.md)** - Guia de instalação e configuração
 - **[👥 CONTRIBUTING.md](./CONTRIBUTING.md)** - Como contribuir
-- **[📘 USER_GUIDE.md](./docs/USER_GUIDE.md)** - Manual do usuário
-- **[🚀 DEPLOYMENT.md](./docs/DEPLOYMENT.md)** - Deploy em produção
+- **[📘 USER_GUIDE.md](./USER_GUIDE.md)** - Manual do usuário
+- **[📄 Bike Segura.pdf](./Bike%20Segura.pdf)** - Documentação completa (PDF)
 
 ---
 
@@ -270,7 +270,9 @@ Este projeto está sob a licença [MIT](./LICENSE) - veja o arquivo LICENSE para
 
 - **Autor:** Fábio (fabiodmu-ux)
 - **GitHub:** [@fabiodmu-ux](https://github.com/fabiodmu-ux)
+- **Email:** fabiodmu@gmail.com
 - **Issues:** [Abra uma issue](https://github.com/fabiodmu-ux/Projeto-Alerta-Bike/issues)
+- **Discussions:** [Discussões](https://github.com/fabiodmu-ux/Projeto-Alerta-Bike/discussions)
 
 ---
 
@@ -279,6 +281,7 @@ Este projeto está sob a licença [MIT](./LICENSE) - veja o arquivo LICENSE para
 | Componente | Status | Progresso |
 |-----------|--------|-----------|
 | 🎨 Design Frontend | ✅ Completo | 100% |
+| 📘 Documentação de Usuário | ✅ Completo | 100% |
 | 🔌 API Backend | 🚧 Em desenvolvimento | 40% |
 | 🔐 Integração Gov.br | 🚧 Em desenvolvimento | 30% |
 | 🧪 Testes | 🚧 Em desenvolvimento | 20% |
