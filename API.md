@@ -1,75 +1,184 @@
-# 🔌 Especificação de API REST - Bike Segura
+# 🔌 Especificação Completa da API REST - Alerta Bike
 
-## Base URL
+> **Sistema de Segurança e Recuperação de Bicicletas**  
+> Versão: 1.0.0 | Última atualização: 8 de junho de 2026
 
-```
-Desenvolvimento:  http://localhost:3001/api
-Produção:        https://api.bikesegura.gov.br/api
-```
+## 📋 Índice
+
+- [Informações Gerais](#-informações-gerais)
+- [Autenticação](#-autenticação)
+- [Usuários](#-usuários)
+- [Bicicletas](#-bicicletas)
+- [Alertas de Emergência](#-alertas-de-emergência)
+- [Consulta de Procedência](#-consulta-de-procedência)
+- [Notificações (WebSocket)](#-notificações-websocket)
+- [Tratamento de Erros](#-tratamento-de-erros)
+- [Rate Limiting](#-rate-limiting)
+- [Segurança](#-segurança)
 
 ---
 
-## 📋 Índice de Endpoints
+## 📍 Informações Gerais
 
-- [Autenticação](#-autenticação)
-- [Bicicletas](#-bicicletas)
-- [Alertas](#-alertas)
-- [Usuários](#-usuários)
-- [Geolocalização](#-geolocalização)
+### Base URL
+
+```
+Desenvolvimento:  http://localhost:5000/api/v1
+Homologação:     https://staging-api.alertabike.com.br/api/v1
+Produção:        https://api.alertabike.com.br/api/v1
+```
+
+### Headers Padrão
+
+Todos os requests devem incluir:
+
+```
+Content-Type: application/json
+Accept: application/json
+```
+
+### Formato de Resposta
+
+Sucesso (2xx):
+```json
+{
+  "success": true,
+  "data": {},
+  "message": "Operação realizada com sucesso"
+}
+```
+
+Erro (4xx/5xx):
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Descrição do erro",
+    "details": []
+  }
+}
+```
 
 ---
 
 ## 🔐 Autenticação
 
-### POST `/auth/login`
+### Fluxo de Autenticação
 
-Inicia fluxo de autenticação com Gov.br
+```
+┌─────────────┐                                    ┌──────────┐
+│   Cliente   │                                    │ Gov.br   │
+└──────┬──────┘                                    └────┬─────┘
+       │                                                 │
+       │──────────────── (1) Redireciona para Gov.br──>│
+       │                                                 │
+       │<─────────────────── (2) Código de Auth ──────│
+       │
+       │──────────────── (3) POST /auth/login ─────────────────────────────┐
+       │                                              ┌────────────────────┘
+       │<─────────────── (4) JWT + Refresh Token ─────┤
+       │                                               │
+```
+
+### POST `/auth/register`
+
+Registrar novo usuário
 
 **Request:**
 ```json
 {
-  "gov_br_code": "string"
+  "name": "João Silva",
+  "email": "joao@example.com",
+  "cpf": "12345678901",
+  "phone": "+5511999999999",
+  "password": "SenhaSegura123!"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "João Silva",
+    "email": "joao@example.com",
+    "verified": false
+  }
+}
+```
+
+**Errors:**
+- `400` - Email já registrado
+- `400` - CPF inválido
+- `422` - Validação de dados falhou
+
+---
+
+### POST `/auth/login`
+
+Login com credenciais ou Gov.br
+
+**Request (Email/Senha):**
+```json
+{
+  "email": "joao@example.com",
+  "password": "SenhaSegura123!"
+}
+```
+
+**Request (Gov.br):**
+```json
+{
+  "govbr_code": "auth_code_from_oauth",
+  "state": "random_state_value"
 }
 ```
 
 **Response (200 OK):**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIs...",
-  "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
-  "user": {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "name": "João Silva",
-    "email": "joao@example.com",
-    "gov_br_id": "12345678901",
-    "phone": "+55 11 99999-8888"
+  "success": true,
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires_in": 3600,
+    "user": {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "name": "João Silva",
+      "email": "joao@example.com",
+      "verified": true
+    }
   }
 }
 ```
 
-**Headers:**
-```
-Content-Type: application/json
-```
+**Errors:**
+- `401` - Credenciais inválidas
+- `401` - Código Gov.br expirado
 
 ---
 
 ### POST `/auth/refresh`
 
-Renova token de acesso expirado
+Renovar token de acesso
 
 **Request:**
 ```json
 {
-  "refresh_token": "eyJhbGciOiJIUzI1NiIs..."
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
 **Response (200 OK):**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIs...",
-  "expires_in": 3600
+  "success": true,
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires_in": 3600
+  }
 }
 ```
 
@@ -77,122 +186,191 @@ Renova token de acesso expirado
 
 ### POST `/auth/logout`
 
-Finaliza sessão do usuário
+Fazer logout
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
 
 **Response (200 OK):**
 ```json
 {
+  "success": true,
   "message": "Logout realizado com sucesso"
 }
 ```
 
 ---
 
-## 🚲 Bicicletas
+### POST `/auth/forgot-password`
 
-### POST `/bikes`
-
-Registra uma nova bicicleta
+Solicitar reset de senha
 
 **Request:**
 ```json
 {
-  "name": "Caloi Elite",
-  "brand": "Caloi",
-  "model": "Elite 2024",
-  "chassi": "ABC123DEF456",
-  "color": "Preto",
-  "photo_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRg==...",
-  "location": {
-    "latitude": -23.5505,
-    "longitude": -46.6333
-  }
+  "email": "joao@example.com"
 }
 ```
 
-**Response (201 Created):**
+**Response (200 OK):**
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "Caloi Elite",
-  "brand": "Caloi",
-  "chassi": "ABC123DEF456",
-  "status": "active",
-  "registered_at": "2024-06-08T14:30:00Z"
+  "success": true,
+  "message": "Email de recuperação enviado"
 }
 ```
+
+---
+
+### POST `/auth/reset-password`
+
+Redefinir senha
+
+**Request:**
+```json
+{
+  "token": "reset_token_from_email",
+  "password": "NovaSenha123!"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Senha atualizada com sucesso"
+}
+```
+
+---
+
+## 👥 Usuários
+
+### GET `/users/profile`
+
+Obter perfil do usuário autenticado
 
 **Headers:**
 ```
 Authorization: Bearer <access_token>
-Content-Type: application/json
 ```
-
----
-
-### GET `/bikes/:id`
-
-Recupera detalhes de uma bicicleta
 
 **Response (200 OK):**
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "Caloi Elite",
-  "brand": "Caloi",
-  "model": "Elite 2024",
-  "chassi": "ABC123DEF456",
-  "color": "Preto",
-  "status": "active",
-  "registered_at": "2024-06-08T14:30:00Z"
+  "success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "João Silva",
+    "email": "joao@example.com",
+    "cpf": "12345678901",
+    "phone": "+5511999999999",
+    "avatar_url": "https://...",
+    "bikes_count": 3,
+    "alerts_count": 2,
+    "verified": true,
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-06-08T14:00:00Z"
+  }
 }
 ```
 
 ---
 
-### GET `/bikes/lookup/:chassi`
+### PUT `/users/profile`
 
-Consulta procedência de uma bicicleta (público)
-
-**Response (200 OK):**
-```json
-{
-  "registered": true,
-  "owner_name": "João Silva",
-  "status": "active",
-  "verified": true,
-  "registration_date": "2024-01-15T10:30:00Z"
-}
-```
-
----
-
-### PUT `/bikes/:id`
-
-Atualiza dados de uma bicicleta
+Atualizar perfil do usuário
 
 **Request:**
 ```json
 {
-  "name": "Caloi Elite Pro",
-  "color": "Branco"
+  "name": "João Silva Santos",
+  "phone": "+5511988888888",
+  "avatar_base64": "data:image/jpeg;base64,..."
 }
 ```
 
 **Response (200 OK):**
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "Caloi Elite Pro",
-  "updated_at": "2024-06-08T15:45:00Z"
+  "success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "João Silva Santos",
+    "phone": "+5511988888888",
+    "updated_at": "2024-06-08T14:30:00Z"
+  }
 }
 ```
 
 ---
 
-### DELETE `/bikes/:id`
+### POST `/users/change-password`
 
-Remove uma bicicleta
+Alterar senha
+
+**Request:**
+```json
+{
+  "current_password": "SenhaAtual123!",
+  "new_password": "NovaSenha123!"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Senha alterada com sucesso"
+}
+```
+
+---
+
+### POST `/users/preferences`
+
+Atualizar preferências de notificações
+
+**Request:**
+```json
+{
+  "email_notifications": true,
+  "sms_notifications": true,
+  "push_notifications": true,
+  "alert_radius_km": 10
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "preferences": {
+      "email_notifications": true,
+      "sms_notifications": true,
+      "push_notifications": true,
+      "alert_radius_km": 10
+    }
+  }
+}
+```
+
+---
+
+### DELETE `/users/account`
+
+Deletar conta do usuário
+
+**Request:**
+```json
+{
+  "password": "SenhaAtual123!",
+  "reason": "Motivo da exclusão (opcional)"
+}
+```
 
 **Response (204 No Content):**
 ```
@@ -201,64 +379,245 @@ Remove uma bicicleta
 
 ---
 
-### GET `/bikes`
+## 🚲 Bicicletas
 
-Lista todas as bicicletas do usuário
+### POST `/bikes`
 
-**Query Parameters:**
-- `status`: `active | stolen | recovered`
-- `page`: número da página (default: 1)
-- `limit`: itens por página (default: 20, max: 100)
-
-**Response (200 OK):**
-```json
-{
-  "data": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440000",
-      "name": "Caloi Elite",
-      "brand": "Caloi",
-      "status": "active"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 45
-  }
-}
-```
-
----
-
-## 🚨 Alertas
-
-### POST `/alerts`
-
-Dispara um alerta de emergência
+Registrar nova bicicleta
 
 **Request:**
 ```json
 {
-  "bike_id": "550e8400-e29b-41d4-a716-446655440000",
-  "alert_type": "theft",
-  "location": {
-    "latitude": -23.5505,
-    "longitude": -46.6333,
-    "accuracy": 10
+  "brand": "Caloi",
+  "model": "Elite 2024",
+  "color": "Preto",
+  "bike_type": "mountain",
+  "chassis_number": "ABC123DEF456",
+  "frame_number": "XYZ789",
+  "weight_kg": 12.5,
+  "components": {
+    "brake_type": "Hydraulic disc",
+    "shifter": "Shimano",
+    "wheels": "29 polegadas"
   },
-  "description": "Bicicleta roubada em frente à Estação Faria Lima"
+  "photos": [
+    "data:image/jpeg;base64,..."
+  ],
+  "registration_location": {
+    "latitude": -23.5505,
+    "longitude": -46.6333
+  }
 }
 ```
 
 **Response (201 Created):**
 ```json
 {
-  "id": "alert-123456789",
-  "bike_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "active",
-  "created_at": "2024-06-08T15:45:00Z",
-  "broadcast_count": 234
+  "success": true,
+  "data": {
+    "id": "bike-550e8400-e29b-41d4-a716-446655440000",
+    "brand": "Caloi",
+    "model": "Elite 2024",
+    "chassis_number": "ABC123DEF456",
+    "status": "active",
+    "alerta_bike_code": "AB-123-CD-456",
+    "registered_at": "2024-06-08T14:30:00Z"
+  }
+}
+```
+
+---
+
+### GET `/bikes`
+
+Listar bicicletas do usuário
+
+**Query Parameters:**
+- `status` - `active|stolen|recovered` (padrão: all)
+- `page` - número da página (padrão: 1)
+- `limit` - itens por página (padrão: 20, máx: 100)
+- `sort` - `created_at|brand|status` (padrão: created_at)
+- `order` - `asc|desc` (padrão: desc)
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "bike-550e8400-e29b-41d4-a716-446655440000",
+      "brand": "Caloi",
+      "model": "Elite 2024",
+      "color": "Preto",
+      "status": "active",
+      "alerta_bike_code": "AB-123-CD-456",
+      "registered_at": "2024-06-08T14:30:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 45,
+    "total_pages": 3
+  }
+}
+```
+
+---
+
+### GET `/bikes/:id`
+
+Obter detalhes de uma bicicleta
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "bike-550e8400-e29b-41d4-a716-446655440000",
+    "brand": "Caloi",
+    "model": "Elite 2024",
+    "color": "Preto",
+    "chassis_number": "ABC123DEF456",
+    "frame_number": "XYZ789",
+    "bike_type": "mountain",
+    "weight_kg": 12.5,
+    "status": "active",
+    "alerta_bike_code": "AB-123-CD-456",
+    "components": {
+      "brake_type": "Hydraulic disc",
+      "shifter": "Shimano",
+      "wheels": "29 polegadas"
+    },
+    "photos": [
+      "https://cdn.alertabike.com.br/bikes/..."
+    ],
+    "registered_at": "2024-06-08T14:30:00Z",
+    "alerts_count": 0
+  }
+}
+```
+
+---
+
+### PUT `/bikes/:id`
+
+Atualizar bicicleta
+
+**Request:**
+```json
+{
+  "brand": "Caloi",
+  "model": "Elite Pro 2024",
+  "color": "Branco"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "bike-550e8400-e29b-41d4-a716-446655440000",
+    "brand": "Caloi",
+    "model": "Elite Pro 2024",
+    "color": "Branco",
+    "updated_at": "2024-06-08T15:45:00Z"
+  }
+}
+```
+
+---
+
+### DELETE `/bikes/:id`
+
+Deletar bicicleta
+
+**Response (204 No Content):**
+```
+(sem body)
+```
+
+---
+
+## 🚨 Alertas de Emergência
+
+### POST `/alerts`
+
+Disparar novo alerta de emergência
+
+**Request:**
+```json
+{
+  "bike_id": "bike-550e8400-e29b-41d4-a716-446655440000",
+  "alert_type": "theft",
+  "location": {
+    "latitude": -23.5505,
+    "longitude": -46.6333,
+    "accuracy_meters": 20
+  },
+  "description": "Bicicleta roubada em frente à Estação Faria Lima",
+  "police_report_number": "2024/123456"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "alert-550e8400-e29b-41d4-a716-446655440000",
+    "bike_id": "bike-550e8400-e29b-41d4-a716-446655440000",
+    "alert_type": "theft",
+    "status": "active",
+    "location": {
+      "latitude": -23.5505,
+      "longitude": -46.6333,
+      "address": "Avenida Paulista, 1000 - São Paulo, SP"
+    },
+    "created_at": "2024-06-08T15:45:00Z",
+    "broadcast_count": 234,
+    "share_link": "https://alertabike.com.br/alerts/alert-550e8400..."
+  }
+}
+```
+
+---
+
+### GET `/alerts`
+
+Listar alertas do usuário
+
+**Query Parameters:**
+- `status` - `active|resolved|cancelled` (padrão: all)
+- `page` - número da página (padrão: 1)
+- `limit` - itens por página (padrão: 20, máx: 100)
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "alert-550e8400-e29b-41d4-a716-446655440000",
+      "bike_id": "bike-550e8400-e29b-41d4-a716-446655440000",
+      "bike_name": "Caloi Elite",
+      "alert_type": "theft",
+      "status": "active",
+      "location": {
+        "latitude": -23.5505,
+        "longitude": -46.6333
+      },
+      "description": "Bicicleta roubada",
+      "created_at": "2024-06-08T15:45:00Z",
+      "responses_count": 12
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 5
+  }
 }
 ```
 
@@ -266,23 +625,45 @@ Dispara um alerta de emergência
 
 ### GET `/alerts/:id`
 
-Recupera detalhes de um alerta
+Obter detalhes de um alerta
 
 **Response (200 OK):**
 ```json
 {
-  "id": "alert-123456789",
-  "bike_id": "550e8400-e29b-41d4-a716-446655440000",
-  "bike_name": "Caloi Elite",
-  "alert_type": "theft",
-  "location": {
-    "latitude": -23.5505,
-    "longitude": -46.6333
-  },
-  "description": "Bicicleta roubada",
-  "status": "active",
-  "created_at": "2024-06-08T15:45:00Z",
-  "responses": 12
+  "success": true,
+  "data": {
+    "id": "alert-550e8400-e29b-41d4-a716-446655440000",
+    "bike_id": "bike-550e8400-e29b-41d4-a716-446655440000",
+    "bike": {
+      "brand": "Caloi",
+      "model": "Elite 2024",
+      "color": "Preto",
+      "photo": "https://cdn.alertabike.com.br/..."
+    },
+    "alert_type": "theft",
+    "status": "active",
+    "location": {
+      "latitude": -23.5505,
+      "longitude": -46.6333,
+      "address": "Avenida Paulista, 1000 - São Paulo, SP"
+    },
+    "description": "Bicicleta roubada em frente à Estação Faria Lima",
+    "created_at": "2024-06-08T15:45:00Z",
+    "responses": [
+      {
+        "id": "resp-001",
+        "user_name": "Maria Silva",
+        "message": "Vi uma bicicleta preta próxima à praça",
+        "location": {
+          "latitude": -23.5510,
+          "longitude": -46.6340
+        },
+        "created_at": "2024-06-08T16:00:00Z"
+      }
+    ],
+    "responses_count": 12,
+    "broadcast_count": 450
+  }
 }
 ```
 
@@ -290,25 +671,36 @@ Recupera detalhes de um alerta
 
 ### GET `/alerts/nearby`
 
-Busca alertas próximos
+Buscar alertas próximos à localização
 
 **Query Parameters:**
-- `latitude`: número
-- `longitude`: número
-- `radius_km`: número (default: 5)
+- `latitude` - latitude (obrigatório)
+- `longitude` - longitude (obrigatório)
+- `radius_km` - raio em km (padrão: 5, máx: 50)
 
 **Response (200 OK):**
 ```json
 {
-  "alerts": [
+  "success": true,
+  "data": [
     {
-      "id": "alert-123456789",
+      "id": "alert-550e8400-e29b-41d4-a716-446655440000",
       "bike_name": "Caloi Elite",
+      "alert_type": "theft",
       "distance_km": 0.8,
+      "location": {
+        "latitude": -23.5505,
+        "longitude": -46.6333,
+        "address": "Avenida Paulista, 1000 - São Paulo, SP"
+      },
       "created_at": "2024-06-08T15:45:00Z"
     }
   ],
-  "count": 1
+  "count": 1,
+  "user_location": {
+    "latitude": -23.5505,
+    "longitude": -46.6333
+  }
 }
 ```
 
@@ -316,7 +708,7 @@ Busca alertas próximos
 
 ### POST `/alerts/:id/response`
 
-Responde a um alerta
+Responder a um alerta
 
 **Request:**
 ```json
@@ -325,17 +717,23 @@ Responde a um alerta
   "location": {
     "latitude": -23.5510,
     "longitude": -46.6340
-  }
+  },
+  "photos": [
+    "data:image/jpeg;base64,..."
+  ]
 }
 ```
 
 **Response (201 Created):**
 ```json
 {
-  "id": "resp-001",
-  "alert_id": "alert-123456789",
-  "message": "Vi uma bicicleta preta próxima à praça",
-  "responded_at": "2024-06-08T16:00:00Z"
+  "success": true,
+  "data": {
+    "id": "resp-001",
+    "alert_id": "alert-550e8400-e29b-41d4-a716-446655440000",
+    "message": "Vi uma bicicleta preta próxima à praça",
+    "created_at": "2024-06-08T16:00:00Z"
+  }
 }
 ```
 
@@ -343,21 +741,25 @@ Responde a um alerta
 
 ### PUT `/alerts/:id/status`
 
-Atualiza o status de um alerta
+Atualizar status do alerta
 
 **Request:**
 ```json
 {
-  "status": "resolved"
+  "status": "resolved",
+  "resolution_details": "Bicicleta recuperada intacta"
 }
 ```
 
 **Response (200 OK):**
 ```json
 {
-  "id": "alert-123456789",
-  "status": "resolved",
-  "resolved_at": "2024-06-08T18:30:00Z"
+  "success": true,
+  "data": {
+    "id": "alert-550e8400-e29b-41d4-a716-446655440000",
+    "status": "resolved",
+    "resolved_at": "2024-06-08T18:30:00Z"
+  }
 }
 ```
 
@@ -365,99 +767,305 @@ Atualiza o status de um alerta
 
 ---
 
-## 👥 Usuários
+## 🔍 Consulta de Procedência
 
-### GET `/users/me`
+### POST `/procedence/verify`
 
-Obtém perfil do usuário autenticado
-
-**Response (200 OK):**
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440001",
-  "name": "João Silva",
-  "email": "joao@example.com",
-  "bikes_count": 2,
-  "alerts_created": 1,
-  "created_at": "2024-01-15T10:30:00Z"
-}
-```
-
----
-
-### PUT `/users/me`
-
-Atualiza perfil do usuário
+Verificar procedência de uma bicicleta (público - sem autenticação)
 
 **Request:**
 ```json
 {
-  "name": "João Silva Santos",
-  "phone": "+55 11 98888-7777"
+  "chassis_number": "ABC123DEF456"
 }
 ```
 
 **Response (200 OK):**
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440001",
-  "name": "João Silva Santos",
-  "updated_at": "2024-06-08T16:30:00Z"
+  "success": true,
+  "data": {
+    "found": true,
+    "status": "active",
+    "owner_verified": true,
+    "registration_date": "2024-01-15T10:30:00Z",
+    "alerts": [
+      {
+        "id": "alert-550e8400-e29b-41d4-a716-446655440000",
+        "type": "theft",
+        "status": "resolved"
+      }
+    ],
+    "alert_count": 1
+  }
 }
 ```
 
 ---
 
-## 📍 Geolocalização
+### POST `/procedence/image-recognition`
 
-### GET `/geo/address`
+Reconhecimento de chassis por imagem usando IA
 
-Converte coordenadas em endereço
+**Request:**
+```json
+{
+  "image_base64": "data:image/jpeg;base64,..."
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "confidence": 0.95,
+    "chassis_detected": "ABC123DEF456",
+    "procedence_info": {
+      "found": true,
+      "status": "active",
+      "registration_date": "2024-01-15T10:30:00Z"
+    }
+  }
+}
+```
+
+---
+
+### GET `/procedence/search`
+
+Buscar por chassis, marca ou modelo
 
 **Query Parameters:**
-- `latitude`: número
-- `longitude`: número
+- `q` - termo de busca (obrigatório)
+- `type` - `chassis|brand|model` (padrão: chassis)
 
 **Response (200 OK):**
 ```json
 {
-  "address": "Avenida Paulista, 1000 - São Paulo, SP",
-  "city": "São Paulo",
-  "state": "SP",
-  "zip_code": "01310-100"
+  "success": true,
+  "data": [
+    {
+      "chassis_number": "ABC123DEF456",
+      "brand": "Caloi",
+      "model": "Elite 2024",
+      "status": "active",
+      "registration_date": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "count": 1
 }
 ```
 
 ---
 
-## 🛡️ Códigos de Erro
+## 🔔 Notificações (WebSocket)
 
-| Código | Descrição |
-|--------|-----------|
-| 400 | Bad Request - Dados inválidos |
-| 401 | Unauthorized - Token inválido |
-| 403 | Forbidden - Acesso negado |
-| 404 | Not Found - Recurso não encontrado |
-| 409 | Conflict - Recurso duplicado |
-| 429 | Too Many Requests - Rate limit |
-| 500 | Internal Server Error |
+### Conexão WebSocket
+
+```
+Desenvolvimento:  ws://localhost:5000
+Produção:        wss://api.alertabike.com.br
+```
+
+### Autenticação
+
+```javascript
+const socket = io('http://localhost:5000', {
+  auth: {
+    token: 'seu_jwt_token'
+  }
+});
+```
+
+### Eventos do Servidor
+
+#### `alert:new`
+Novo alerta próximo ao usuário
+```json
+{
+  "type": "alert:new",
+  "data": {
+    "id": "alert-550e8400-e29b-41d4-a716-446655440000",
+    "bike_name": "Caloi Elite",
+    "distance_km": 0.8
+  }
+}
+```
+
+#### `alert:update`
+Atualização de um alerta
+```json
+{
+  "type": "alert:update",
+  "data": {
+    "id": "alert-550e8400-e29b-41d4-a716-446655440000",
+    "status": "resolved"
+  }
+}
+```
+
+#### `notification:send`
+Notificação geral
+```json
+{
+  "type": "notification:send",
+  "data": {
+    "title": "Alerta próximo",
+    "message": "Uma bicicleta foi roubada a 500m de você",
+    "action_url": "/alerts/alert-550e8400..."
+  }
+}
+```
 
 ---
 
-## 🔄 Fluxo de Autenticação com Gov.br
+## ⚠️ Tratamento de Erros
+
+### Formato de Erro
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "Descrição legível do erro",
+    "details": [
+      {
+        "field": "email",
+        "issue": "Email já registrado"
+      }
+    ]
+  }
+}
+```
+
+### Códigos de Erro
+
+| Código HTTP | Código de Erro | Descrição |
+|-------------|---|-----------|
+| 400 | `INVALID_REQUEST` | Dados inválidos |
+| 401 | `UNAUTHORIZED` | Token inválido ou expirado |
+| 403 | `FORBIDDEN` | Acesso negado |
+| 404 | `NOT_FOUND` | Recurso não encontrado |
+| 409 | `CONFLICT` | Recurso duplicado |
+| 422 | `VALIDATION_ERROR` | Erro de validação |
+| 429 | `RATE_LIMIT` | Limite de requisições excedido |
+| 500 | `INTERNAL_ERROR` | Erro interno do servidor |
+
+---
+
+## 🚦 Rate Limiting
+
+### Headers de Rate Limit
+
+Toda resposta inclui:
 
 ```
-1. Cliente clica em "Entrar com Gov.br"
-2. Redirecionado para OAuth de Gov.br
-3. Usuário faz login no Gov.br
-4. Gov.br redireciona com código
-5. Frontend envia POST /api/auth/login
-6. Backend troca código por token
-7. JWT armazenado no frontend
-8. Todas as requisições incluem: Authorization: Bearer <access_token>
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1686250000
+```
+
+### Limites Padrão
+
+| Endpoint | Limite | Janela |
+|----------|--------|--------|
+| `/auth/login` | 5 | 15 minutos |
+| `/alerts` | 10 | 1 minuto |
+| `/procedence/verify` | 30 | 1 minuto |
+| Outros | 100 | 15 minutos |
+
+---
+
+## 🔒 Segurança
+
+### HTTPS
+
+Todas as requisições em produção devem usar HTTPS.
+
+### CORS
+
+Headers CORS configurados para:
+```
+Access-Control-Allow-Origin: https://alertabike.com.br
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: Content-Type, Authorization
+```
+
+### JWT
+
+Token JWT com claims:
+
+```json
+{
+  "sub": "user_id",
+  "iat": 1686250000,
+  "exp": 1686253600,
+  "iss": "Alerta Bike API",
+  "role": "user"
+}
+```
+
+### Data Sanitization
+
+Todas as entradas são validadas e sanitizadas contra:
+- SQL Injection
+- XSS (Cross-Site Scripting)
+- CSRF (Cross-Site Request Forgery)
+
+---
+
+## 📚 Exemplos de Integração
+
+### cURL
+
+```bash
+# Login
+curl -X POST http://localhost:5000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"joao@example.com","password":"SenhaSegura123!"}'
+
+# Registrar bicicleta
+curl -X POST http://localhost:5000/api/v1/bikes \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"brand":"Caloi","model":"Elite 2024","chassis_number":"ABC123"}'
+```
+
+### JavaScript
+
+```javascript
+// Autenticação
+const response = await fetch('/api/v1/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'joao@example.com',
+    password: 'SenhaSegura123!'
+  })
+});
+
+const { data } = await response.json();
+localStorage.setItem('access_token', data.access_token);
+
+// Registrar bicicleta
+fetch('/api/v1/bikes', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    brand: 'Caloi',
+    model: 'Elite 2024',
+    chassis_number: 'ABC123'
+  })
+});
 ```
 
 ---
 
 **API Version:** 1.0.0  
+**Última atualização:** 8 de junho de 2026  
 **Desenvolvido com ❤️ para a segurança de ciclistas no Brasil**
