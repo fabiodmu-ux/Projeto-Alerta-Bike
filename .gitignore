@@ -1,0 +1,5 @@
+# Ignorar dependências instaladas pelo npm/yarn
+node_modules/
+
+# Ignorar variáveis de ambiente
+.env
