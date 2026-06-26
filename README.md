@@ -559,3 +559,35 @@ Este projeto está sob a licença [MIT](./LICENSE) - veja o arquivo LICENSE para
 **Desenvolvido com ❤️ para a segurança de ciclistas no Brasil**
 
 *Última atualização: 8 de junho de 2026*
+
+
+---
+
+# 🚴 Projeto Destaque | Pedale com Liberdade
+
+## Sobre o projeto
+
+O **Pedale com Liberdade** é uma landing page desenvolvida para incentivar o uso da bicicleta como meio de transporte, lazer e qualidade de vida.
+
+O projeto foi criado com foco em uma experiência moderna, intuitiva e responsiva, utilizando princípios de UX/UI para proporcionar uma navegação agradável e acessível.
+
+### ✨ Objetivos
+
+- Incentivar a mobilidade sustentável;
+- Promover saúde e bem-estar;
+- Demonstrar habilidades em desenvolvimento web e design de interfaces.
+
+### 🌐 Demonstração
+
+🔗 https://pedalecomliberdade-q1cazzo.gamma.site/
+
+### 📌 Principais características
+
+- Interface moderna;
+- Layout responsivo;
+- Navegação intuitiva;
+- Design centrado no usuário.
+
+---
+
+⭐ Gostou do projeto? Deixe uma estrela no repositório e acompanhe meus próximos trabalhos!
