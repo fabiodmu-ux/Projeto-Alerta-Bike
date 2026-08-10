@@ -177,8 +177,8 @@ npm run dev
 Landing Page desenvolvida para incentivar o ciclismo, qualidade de vida e mobilidade sustentável.
 
 🌐 Demonstração
+[(Pedale com Liberdade)](https://pedalecomliberdade-q1cazzo.gamma.site/)
 
-https://pedalecomliberdade-q1cazzo.gamma.site/
 
 ---
 
@@ -200,13 +200,11 @@ https://pedalecomliberdade-q1cazzo.gamma.site/
 
 UX Designer • Desenvolvedor • Pesquisador
 
-GitHub
+[(GitHub)](https://github.com/fabiodmu-ux)
 
-https://github.com/fabiodmu-ux
 
-LinkedIn
+[(LinkedIn)](https://www.linkedin.com/feed/)
 
-(Adicione seu LinkedIn)
 
 ---
 
