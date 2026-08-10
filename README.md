@@ -200,10 +200,10 @@ Landing Page desenvolvida para incentivar o ciclismo, qualidade de vida e mobili
 
 UX Designer • Desenvolvedor • Pesquisador
 
-[(GitHub)](https://github.com/fabiodmu-ux)
+[GitHub](https://github.com/fabiodmu-ux)
 
 
-[(LinkedIn)](https://www.linkedin.com/feed/)
+[LinkedIn](https://www.linkedin.com/feed/)
 
 
 ---
