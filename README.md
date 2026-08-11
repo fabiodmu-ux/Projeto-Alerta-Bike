@@ -179,6 +179,7 @@ Landing Page desenvolvida para incentivar o ciclismo, qualidade de vida e mobili
 🌐 Demonstração
 [(Pedale com Liberdade)](https://pedalecomliberdade-q1cazzo.gamma.site/)
 
+# 🚴 APP - surgindo [(BikeGuard)](https://easy-modern-plan.lovable.app/)
 
 ---
 
