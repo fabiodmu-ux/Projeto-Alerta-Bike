@@ -1,222 +1,37 @@
-# 🚲 Alerta Bike + Bike Segura
+# 🚲 Alerta Bike - Sistema de Rastreabilidade e Segurança
 
-> Sistema integrado para registro, rastreamento e recuperação de bicicletas, com foco em segurança, mobilidade urbana e experiência do usuário.
+Bem-vindo ao repositório oficial do **Alerta Bike**, um Produto Mínimo Viável (MVP) desenvolvido para combater o furto de bicicletas e a receptação na região de Itajaí - SC. 
 
-![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)
-![UX](https://img.shields.io/badge/UX-Case%20Study-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+Este projeto cria uma rede colaborativa de proteção, permitindo que ciclistas registrem o chassi de suas bicicletas, disparem alertas de furto em tempo real e que compradores ou agentes de segurança pública (Polícia Militar) consultem a procedência de um veículo instantaneamente.
 
----
+## 🛠️ Tecnologias Utilizadas
 
-## 📖 Sobre o Projeto
-
-O **Alerta Bike + Bike Segura** é uma proposta de solução digital para aumentar a segurança dos ciclistas por meio de um sistema integrado de cadastro preventivo, rastreamento e recuperação de bicicletas.
-
-O projeto combina um **frontend centrado na experiência do usuário (UX/UI)** com uma arquitetura backend preparada para autenticação via Gov.br, notificações em tempo real e consulta de procedência.
-
----
-
-## 🎯 Objetivos
-
-- 🚴 Incentivar o cadastro preventivo de bicicletas.
-- 🚨 Reduzir o tempo de resposta em casos de furto.
-- 📍 Facilitar a recuperação através da geolocalização.
-- 🔐 Integrar autenticação segura utilizando Gov.br.
-- ♿ Garantir acessibilidade e usabilidade em qualquer dispositivo.
+A arquitetura do projeto segue o padrão Cliente-Servidor (API RESTful), garantindo um tempo de resposta rápido (inferior a 1.5s em redes 4G).
+* **Linguagem:** Python 3.12
+* **Back-end/API:** FastAPI
+* **Validação de Dados:** Pydantic
+* **Segurança e Hashes:** Passlib
+* **Banco de Dados:** SQLite (com suporte a ferramentas como DBeaver/SQLiteStudio)
+* **Servidor Local:** Uvicorn
+* **Front-end (Interface):** HTML5, CSS3, JavaScript e Bootstrap 5 (Mobile-First)
 
 ---
 
-## ✨ Funcionalidades
+## ⚙️ Pré-requisitos
 
-- Cadastro de bicicletas
-- Alerta de emergência
-- Geolocalização
-- Consulta de procedência
-- Login Gov.br (planejado)
-- Interface responsiva
-- Acessibilidade WCAG AA
+Antes de iniciar a instalação, certifique-se de ter as seguintes ferramentas instaladas em sua máquina:
+1. **Python 3.12** ou superior (adicione o Python ao `PATH` durante a instalação).
+2. **Git** para clonar o repositório.
+3. Um editor de código de sua preferência (recomendamos o **Visual Studio Code**).
 
 ---
 
-# 🎨 UX Case Study
+## 🚀 Passo a Passo de Instalação e Execução
 
-Durante o desenvolvimento foi realizado um refinamento completo da interface.
+Siga rigorosamente os passos abaixo para configurar o ambiente de desenvolvimento e rodar a API na sua máquina local:
 
-### Resultados
-
-| Indicador | Resultado |
-|-----------|-----------|
-| Tempo para disparar alerta | ⬇️ 67% |
-| Erros no cadastro | ⬇️ 74% |
-| Abandono do fluxo | ⬇️ 74% |
-| Acessibilidade | 94% WCAG AA |
-
-O estudo completo está disponível em:
-
-```
-docs/UX_CASE_STUDY.md
-```
-
----
-
-# 🛠 Tecnologias
-
-## Frontend
-
-- HTML5
-- CSS3
-- JavaScript
-- Geolocation API
-
-## Backend
-
-- Node.js
-- Express
-- PostgreSQL
-- Redis
-- JWT
-- Socket.io
-
----
-
-# 🏗 Arquitetura
-
-```
-Frontend
-      │
- REST API
-      │
-Backend
-      │
-Banco de Dados
-      │
-Gov.br
-```
-
-Documentação completa:
-
-```
-docs/ARCHITECTURE.md
-```
-
----
-
-# 📂 Estrutura
-
-```
-Projeto-Alerta-Bike/
-
-frontend/
-backend/
-docs/
-tests/
-
-README.md
-LICENSE
-```
-
----
-
-# 🚀 Como executar
-
+### Passo 1: Clonar o Repositório
+Abra o terminal (Prompt de Comando, PowerShell ou terminal do VS Code) e clone o projeto do GitHub:
 ```bash
-git clone https://github.com/fabiodmu-ux/Projeto-Alerta-Bike.git
-
-cd Projeto-Alerta-Bike
-```
-
-### Docker
-
-```bash
-docker-compose up -d
-```
-
-### Manual
-
-Backend
-
-```bash
-cd backend
-
-npm install
-
-npm run dev
-```
-
-Frontend
-
-```bash
-cd frontend
-
-npm install
-
-npm run dev
-```
-
----
-
-# 📊 Roadmap
-
-| Etapa | Status |
-|--------|--------|
-| UX/UI | ✅ |
-| Protótipo | ✅ |
-| Documentação | ✅ |
-| API | 🚧 |
-| Banco de Dados | 🚧 |
-| Gov.br | 🚧 |
-| Testes | ⏳ |
-| Deploy | ⏳ |
-
----
-
-# 🚴 Projeto Relacionado
-
-## Pedale com Liberdade
-
-Landing Page desenvolvida para incentivar o ciclismo, qualidade de vida e mobilidade sustentável.
-
-🌐 Demonstração
-[(Pedale com Liberdade)](https://pedalecomliberdade-q1cazzo.gamma.site/)
-
-# 🚴 APP - surgindo [(BikeGuard)](https://easy-modern-plan.lovable.app/)
-
----
-
-# 📚 Documentação
-
-| Documento | Descrição |
-|------------|-----------|
-| ARCHITECTURE.md | Arquitetura |
-| API.md | API |
-| USER_GUIDE.md | Manual |
-| SECURITY.md | Segurança |
-| DEPLOYMENT.md | Deploy |
-
----
-
-# 👨‍💻 Autor
-
-**Fábio Duarte Oliveira**
-
-UX Designer • Desenvolvedor • Pesquisador
-
-[GitHub](https://github.com/fabiodmu-ux)
-
-
-[LinkedIn](https://www.linkedin.com/feed/)
-
-
----
-
-# ⭐ Apoie o projeto
-
-Se este projeto foi útil para você, deixe uma ⭐ no repositório.
-
-Isso ajuda a divulgar o trabalho e incentiva a evolução do projeto.
-
----
-
-## 📄 Licença
-
-Este projeto está licenciado sob a licença MIT.
+git clone [https://github.com/fabiodmu-ux/alerta-bike.git](https://github.com/fabiodmu-ux/alerta-bike.git)
+cd alerta-bike
