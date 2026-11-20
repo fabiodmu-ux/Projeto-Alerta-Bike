@@ -1,0 +1,52 @@
+name: CI - Alerta Bike
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  validate:
+    name: Validar Projeto
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Verificar estrutura do projeto
+        run: |
+          echo "Arquivos encontrados:"
+          ls -la
+
+     - name: Verificar HTML
+  run: |
+    if find . -name "*.html" | grep -q .; then
+      echo "✅ Arquivos HTML encontrados."
+    else
+      echo "⚠️ Nenhum arquivo HTML encontrado."
+    fi
+
+- name: Verificar CSS
+  run: |
+    if find . -name "*.css" | grep -q .; then
+      echo "✅ Arquivos CSS encontrados."
+    else
+      echo "⚠️ Nenhum arquivo CSS encontrado."
+    fi
+
+- name: Verificar JavaScript
+  run: |
+    if find . -name "*.js" | grep -q .; then
+      echo "✅ Arquivos JavaScript encontrados."
+    else
+      echo "⚠️ Nenhum arquivo JavaScript encontrado."
+    fi
+
+      - name: Workflow concluído
+        run: echo "Validação realizada com sucesso."
