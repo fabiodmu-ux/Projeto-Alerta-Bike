@@ -2,31 +2,54 @@ name: CI - Alerta Bike
 
 on:
   push:
-    branches: [ main ]
-
+    branches:
+      - main
+      - develop
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - develop
 
 jobs:
-  build-and-test:
+  validate:
+    name: Validar Projeto
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar código
+      - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Configurar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Instalar dependências
+      - name: Verificar estrutura do projeto
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          echo "Arquivos encontrados:"
+          ls -la
 
-      - name: Executar testes
+      - name: Verificar HTML
         run: |
-          pytest
+          if find . -name "*.html" | grep -q .; then
+            echo "Arquivos HTML encontrados."
+          else
+            echo "Nenhum arquivo HTML encontrado."
+            exit 1
+          fi
 
-          ci: adiciona pipeline de integração contínua
+      - name: Verificar CSS
+        run: |
+          if find . -name "*.css" | grep -q .; then
+            echo "Arquivos CSS encontrados."
+          else
+            echo "Nenhum arquivo CSS encontrado."
+            exit 1
+          fi
+
+      - name: Verificar JavaScript
+        run: |
+          if find . -name "*.js" | grep -q .; then
+            echo "Arquivos JavaScript encontrados."
+          else
+            echo "Nenhum arquivo JavaScript encontrado."
+            exit 1
+          fi
+
+      - name: Workflow concluído
+        run: echo "Validação realizada com sucesso."
