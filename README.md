@@ -35,3 +35,7 @@ Abra o terminal (Prompt de Comando, PowerShell ou terminal do VS Code) e clone o
 ```bash
 git clone [https://github.com/fabiodmu-ux/alerta-bike.git](https://github.com/fabiodmu-ux/alerta-bike.git)
 cd alerta-bike
+
+## Atualização do projeto para entrega final
+
+
